@@ -5,14 +5,14 @@ const router = express.Router();
 const path = require("path");
 
 // Setup multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + path.extname(file.originalname)),
-});
-const upload = multer({ storage });
+// const storage = multer.diskStorage({
+//   destination: (req, file, cb) => cb(null, "uploads/"),
+//   filename: (req, file, cb) =>
+//     cb(null, Date.now() + path.extname(file.originalname)),
+// });
+// const upload = multer({ storage });
 
-router.post("/detections", upload.single("image"), async (req, res) => {
+router.post("/detections", async (req, res) => {
   try {
     const { label, confidence, boundingBox } = req.body;
 
