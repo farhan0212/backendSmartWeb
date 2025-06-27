@@ -22,4 +22,5 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }} 
         key: ${{ secrets.VPS_SSH_KEY }} 
         passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
-        script: 'bash /script/deployment.sh'
+        script: | 
+          bash /home/farhan/script/deployment.sh
