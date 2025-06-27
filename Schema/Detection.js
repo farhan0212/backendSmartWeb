@@ -9,7 +9,6 @@ const detectionSchema = new mongoose.Schema({
     width: Number,
     height: Number,
   },
-  imageUrl: String, // kalau gambar diupload
   createdAt: {
     type: Date,
     default: Date.now,

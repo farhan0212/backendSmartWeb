@@ -1,32 +1,58 @@
 const express = require("express");
-const multer = require("multer");
 const Detection = require("../Schema/Detection");
 const router = express.Router();
-const path = require("path");
 
-// Setup multer storage
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, "uploads/"),
-  filename: (req, file, cb) =>
-    cb(null, Date.now() + path.extname(file.originalname)),
-});
-const upload = multer({ storage });
-
-router.post("/detections", upload.single("image"), async (req, res) => {
+router.post("/detections", async (req, res) => {
   try {
-    const { label, confidence, boundingBox } = req.body;
+    const { predictions } = req.body;
 
-    const detection = new Detection({
-      label,
-      confidence: parseFloat(confidence),
-      boundingBox: JSON.parse(boundingBox),
-      imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
+    console.log("🟡 Received predictions:", predictions);
+
+    const savedDetections = await Promise.all(
+      predictions.map(async (pred, i) => {
+        console.log(`🔍 [${i}] class:`, pred.class);
+        console.log(`🔍 [${i}] score:`, pred.score);
+        console.log(`🔍 [${i}] bbox:`, pred.bbox);
+
+        if (
+          !pred.class ||
+          typeof pred.score !== "number" ||
+          !Array.isArray(pred.bbox) ||
+          pred.bbox.length !== 4
+        ) {
+          console.warn(`⚠️ Skipping invalid prediction at index ${i}`);
+          return null;
+        }
+
+        const detection = new Detection({
+          label: pred.class,
+          confidence: Math.round(pred.score * 100), // convert to percentage
+          boundingBox: {
+            x: pred.bbox[0],
+            y: pred.bbox[1],
+            width: pred.bbox[2],
+            height: pred.bbox[3],
+          },
+          timestamp: new Date(),
+        });
+
+        return await detection.save();
+      })
+    );
+
+    const filtered = savedDetections.filter((d) => d !== null);
+
+    res.status(201).json({
+      message: "Detections saved successfully",
+      count: filtered.length,
+      detections: filtered,
     });
-
-    await detection.save();
-    res.status(201).json({ message: "Detection saved successfully." });
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Server error:", err);
+    res.status(500).json({
+      error: "Server error",
+      details: err.message,
+    });
   }
 });
 
