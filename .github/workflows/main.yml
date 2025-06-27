@@ -14,3 +14,12 @@ jobs:
       run  : docker build -t farhan0212/backend-smartweb:latest .
     - name : push dockerhub
       run : docker push farhan0212/backend-smartweb:latest
+    - name: Action SSH
+      id: action-ssh
+      uses: appleboy/ssh-action@v1.2.2
+      with:
+        host: ${{ secrets.VPS_HOST }} 
+        username: ${{ secrets.VPS_USERNAME }} 
+        key: ${{ secrets.VPS_SSH_KEY }} 
+        passphrase: ${{ secrets.VPS_SSH_PASSPHRASE }}
+        script: 'bash /script/deployment.sh'
