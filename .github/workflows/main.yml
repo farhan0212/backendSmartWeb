@@ -1,0 +1,16 @@
+on:
+  push:
+    branches:
+    - main
+jobs:
+  build-and-push:
+    name: Build and push docker registry
+    runs-on: ubuntu-latest
+    steps :
+    - uses: actions/checkout@v4
+    - name : login to dockerhub
+      run : echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+    - name : build docker image
+      run  : docker build -t farhan0212/backend-smartweb:${{github.sha }} .
+    - name : push dockerhub
+      run : docker push farhan0212/backend-smmartweb:${{github.shha }}
