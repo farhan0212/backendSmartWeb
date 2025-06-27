@@ -13,4 +13,4 @@ jobs:
     - name : build docker image
       run  : docker build -t farhan0212/backend-smartweb:${{github.sha }} .
     - name : push dockerhub
-      run : docker push farhan0212/backend-smmartweb:${{github.shha }}
+      run : docker push farhan0212/backend-smartweb:${{github.shha }}
